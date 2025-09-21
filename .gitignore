@@ -1,0 +1,10 @@
+__pycache__/
+.env
+*.pyc
+*.pyo
+*.db
+*.sqlite3
+.vscode/
+*.csv
+*.pkl
+*.zip

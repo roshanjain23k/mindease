@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Login</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f9ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,80,0.15);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .login-container h1 {
+      margin-bottom: 25px;
+      color: #003366;
+      font-size: 1.8rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-group label {
+      font-weight: 600;
+      color: #004085;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1.8px solid #a3bffa;
+      font-size: 1rem;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #003366;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      background: #004085;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(0,0,80,0.25);
+      margin-top: 10px;
+    }
+    .btn-login:hover {
+      background: #002952;
+    }
+
+    .error-msg {
+      color: #dc3545;
+      font-size: 0.95rem;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .signup-link {
+      margin-top: 18px;
+      font-size: 0.95rem;
+      color: #004085;
+    }
+    .signup-link a {
+      font-weight: 600;
+      text-decoration: none;
+      color: #003366;
+    }
+    .signup-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <h1>Admin Login</h1>
+    <form id="adminLoginForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+      <button type="submit" class="btn-login">Login</button>
+      <div class="error-msg" id="error-msg">Invalid credentials. Please try again.</div>
+    </form>
+
+    <div class="signup-link">
+      Don’t have an account? <a href="admin_signup.html">Create Admin Account</a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("adminLoginForm");
+    const errorMsg = document.getElementById("error-msg");
+
+    form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  errorMsg.style.display = "none"; // reset error message
+
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    const res = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      // ✅ Save session and redirect
+      localStorage.setItem("admin_id", data.admin_id);
+      window.location.href = "admin_dashboard.html";
+    } else {
+      errorMsg.style.display = "block";
+    }
+  } catch (err) {
+    console.error(err);
+    errorMsg.textContent = "Server error. Please try again.";
+    errorMsg.style.display = "block";
+  }
+});
+
+  </script>
+</body>
+</html>

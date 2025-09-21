@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wellness Tracker</title>
+  <style>
+    /* Global style */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f9ff;
+      color: #222;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar (keep only this version) */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 240px;              /* keep width fixed */
+      background: #003366;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding-top: 50px;
+      transition: transform 0.3s ease;
+      z-index: 1000;
+      transform: translateX(-100%);  /* hidden off screen */
+    }
+
+    .sidebar.open {
+      transform: translateX(0);      /* slide in */
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin: 0 0 20px;
+      font-size: 1.3rem;
+    }
+    .sidebar a {
+      padding: 14px 20px;
+      color: #fff;
+      text-decoration: none;
+      display: block;
+      transition: background 0.3s;
+    }
+    .sidebar a:hover {
+      background: #004080;
+    }
+    .sidebar a.active {
+      background: #00509e;
+      font-weight: bold;
+    }
+
+    /* Main content */
+    main {
+      flex: 1;
+      padding: 20px;
+      margin-left: 0; /* no gap when sidebar closed */
+      transition: margin-left 0.3s ease;
+      margin-top: 60px;  /* push content below header */
+    }
+
+    main.shifted {
+      margin-left: 240px; /* shift when sidebar open */
+    }
+
+    .container {
+      max-width: 720px;
+      margin: auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 8px 25px rgba(0,0,80,0.15);
+    }
+    h1 {
+      text-align: center;
+      color: #003366;
+      margin-bottom: 30px;
+      font-weight: 700;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 25px;
+      border-bottom: 3px solid #004085;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      cursor: pointer;
+      font-weight: 600;
+      color: #004085;
+      border-radius: 10px 10px 0 0;
+      background: #d6e4ff;
+      transition: background-color 0.3s ease;
+    }
+    .tab.active {
+      background: #004085;
+      color: #fff;
+      border-bottom: 3px solid #004085; /* match container border */
+    }
+
+    /* Form fields */
+    form fieldset {
+      border: none;
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+    form fieldset.active {
+      display: block;
+    }
+    label {
+      display: block;
+      margin-top: 18px;
+      font-weight: 600;
+      color: #004085;
+    }
+    input[type="number"],
+    input[type="text"],
+    select {
+      width: 100%;
+      margin-top: 6px;
+      padding: 10px 14px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1.8px solid #a3bffa;
+      transition: border-color 0.3s ease;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #003366;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .checkbox-group {
+      margin-top: 10px;
+    }
+    .checkbox-group label {
+      font-weight: 500;
+      display: inline-block;
+      margin-right: 15px;
+      cursor: pointer;
+      color: #003366;
+    }
+    button[type="submit"] {
+      margin-top: 28px;
+      width: 100%;
+      padding: 16px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      background-color: #004085;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,80,0.3);
+    }
+    button[type="submit"]:hover {
+      background-color: #002952;
+    }
+
+    /* Feedback */
+    #feedback {
+      margin-top: 32px;
+      background: #e3f2ff;
+      border-left: 6px solid #004085;
+      padding: 22px 25px;
+      border-radius: 10px;
+      color: #002952;
+      line-height: 1.5;
+    }
+    #feedback h2 { margin-top: 0; }
+    #feedback ul { padding-left: 22px; }
+    #feedback li { margin-bottom: 10px; }
+    #stressTip {
+      margin-top: 22px;
+      background: #c6defc;
+      color: #003366;
+      font-weight: 700;
+      text-align: center;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 1.1rem;
+    }
+
+    /* Menu button */
+    #menu-toggle {
+      position: absolute;
+      left: 15px;
+      top: 15px;
+      z-index: 1100;
+    }
+
+    /* Header */
+    header.topbar {
+      width:100%; padding:10px 16px; background:#003366; color:white;
+      display:flex; align-items:center; gap:12px; z-index:900;
+    }
+    header.topbar .title{ flex:1; text-align:center; font-size:18px; font-weight:700}
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1200;
+    }
+
+    @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+  </style>
+  
+</head>
+<body>
+<header style="background:#003366; color:white; padding:10px; display:flex; align-items:center;">
+  <button id="menu-toggle" style="font-size:22px;background:none;border:none;color:white;cursor:pointer;display:block;margin-right:10px;">
+    ☰
+  </button>
+  <h1 style="flex:1;text-align:center;">Mental Health & Wellness Tracker</h1>
+</header>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <button id="sidebar-close" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;position:absolute;top:10px;right:10px;">
+    &times;
+  </button>
+  <h2>Menu</h2>
+  <a href="dashboard.html">📊 Dashboard</a>
+  <a href="questionnaire.html">📝 Questionnaire</a>
+  <a href="games.html">🎮 Games</a>
+  <a href="face_recognition.html">👤 Face Recognition</a>
+  <li><a href="/resource-hub">📚 Resource Hub</a></li>
+
+</nav>
+
+<!-- Main content -->
+<main>
+  <div class="container">
+
+    <!-- Tabs -->
+    <nav class="tabs" role="tablist">
+      <button class="tab active" aria-controls="screenTab">Screen Time</button>
+      <button class="tab" aria-controls="sleepTab">Sleep</button>
+      <button class="tab" aria-controls="foodTab">Food</button>
+      <button class="tab" aria-controls="activityTab">Physical Activity</button>
+      <button class="tab" aria-controls="prodTab">Productivity</button>
+    </nav>
+
+    <!-- Form -->
+    <form id="wellnessForm" novalidate>
+      <!-- Screen -->
+      <fieldset id="screenTab" class="active">
+        <label for="workTime">Hours working on screen today:</label>
+        <input type="number" id="workTime" name="workTime" min="0" max="24" step="0.1" required>
+        <label for="scrollingTime">Hours scrolling/social media/video:</label>
+        <input type="number" id="scrollingTime" name="scrollingTime" min="0" max="24" step="0.1" required>
+        <label for="talkingTime">Hours on calls:</label>
+        <input type="number" id="talkingTime" name="talkingTime" min="0" max="24" step="0.1" required>
+        <label for="choresTime">Hours chores with screen:</label>
+        <input type="number" id="choresTime" name="choresTime" min="0" max="24" step="0.1" required>
+        <label for="otherScreenActivity">Other screen activity:</label>
+        <select id="otherScreenActivity" name="otherScreenActivity" required>
+          <option value="" disabled selected>Select</option>
+          <option value="Gaming">Gaming</option>
+          <option value="Learning">Learning/Study apps</option>
+          <option value="Creative">Creative work</option>
+          <option value="Custom">Other</option>
+        </select>
+        <label id="otherScreenCustomLabel" class="hidden">Please specify:</label>
+        <input type="text" id="otherScreenCustom" class="hidden">
+        <label for="otherScreenTime">Hours on above activity:</label>
+        <input type="number" id="otherScreenTime" min="0" max="24" step="0.1" required>
+      </fieldset>
+
+      <!-- Sleep -->
+      <fieldset id="sleepTab">
+        <label for="sleepDuration">Hours of sleep last night:</label>
+        <input type="number" id="sleepDuration" min="0" max="24" step="0.1" required>
+        <label for="sleepPattern">Sleep pattern:</label>
+        <select id="sleepPattern" required>
+          <option value="" disabled selected>Select</option>
+          <option value="Early bird">Early bird</option>
+          <option value="Night owl">Night owl</option>
+          <option value="Irregular">Irregular</option>
+          <option value="Custom">Other</option>
+        </select>
+        <label id="sleepPatternCustomLabel" class="hidden">Please specify:</label>
+        <input type="text" id="sleepPatternCustom" class="hidden">
+      </fieldset>
+
+      <!-- Food -->
+      <fieldset id="foodTab">
+        <label for="calories">Daily calorie intake:</label>
+        <input type="number" id="calories" min="500" max="5000" required>
+        <label>Meals per day:</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" value="Breakfast"> Breakfast</label>
+          <label><input type="checkbox" value="Lunch"> Lunch</label>
+          <label><input type="checkbox" value="Dinner"> Dinner</label>
+          <label><input type="checkbox" value="Snacks"> Snacks</label>
+        </div>
+        <label for="hydration">Cups of water per day:</label>
+        <input type="number" id="hydration" min="0" max="20" required>
+      </fieldset>
+
+      <!-- Activity -->
+      <fieldset id="activityTab">
+        <label>Physical activities today:</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" value="Walking"> Walking</label>
+          <label><input type="checkbox" value="Running"> Running</label>
+          <label><input type="checkbox" value="Yoga"> Yoga</label>
+          <label><input type="checkbox" value="Gym"> Gym/Weights</label>
+          <label><input type="checkbox" value="Sports"> Sports</label>
+          <label><input type="checkbox" value="Stretching"> Stretching</label>
+          <label><input type="checkbox" value="Cycling"> Cycling</label>
+        </div>
+        <label for="activityDuration">Minutes spent:</label>
+        <input type="number" id="activityDuration" min="0" max="600" required>
+      </fieldset>
+
+      <!-- Productivity -->
+      <fieldset id="prodTab">
+        <label for="productiveHours">Hours productive:</label>
+        <input type="number" id="productiveHours" min="0" max="24" step="0.1" required>
+        <label for="breakHours">Hours on breaks:</label>
+        <input type="number" id="breakHours" min="0" max="24" step="0.1" required>
+        <label for="distractionHours">Hours distracted:</label>
+        <input type="number" id="distractionHours" min="0" max="24" step="0.1" required>
+      </fieldset>
+
+      <button type="submit">Get Your Wellness Feedback</button>
+    </form>
+
+    <section id="feedback" class="hidden"></section>
+    <div id="stressTip" class="hidden"></div>
+
+  </div>
+</main>
+
+<script>
+  // Tabs
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('form fieldset');
+  tabs.forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      tabs.forEach(t=>t.classList.remove('active'));
+      panels.forEach(p=>p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.getAttribute('aria-controls')).classList.add('active');
+    });
+  });
+
+  // Custom fields
+  const otherSel = document.getElementById('otherScreenActivity');
+  const otherLab = document.getElementById('otherScreenCustomLabel');
+  const otherInp = document.getElementById('otherScreenCustom');
+  otherSel.addEventListener('change',()=>{
+    if(otherSel.value==='Custom'){otherLab.classList.remove('hidden');otherInp.classList.remove('hidden');}
+    else{otherLab.classList.add('hidden');otherInp.classList.add('hidden');otherInp.value='';}
+  });
+  const sleepSel=document.getElementById('sleepPattern');
+  const sleepLab=document.getElementById('sleepPatternCustomLabel');
+  const sleepInp=document.getElementById('sleepPatternCustom');
+  sleepSel.addEventListener('change',()=>{
+    if(sleepSel.value==='Custom'){sleepLab.classList.remove('hidden');sleepInp.classList.remove('hidden');}
+    else{sleepLab.classList.add('hidden');sleepInp.classList.add('hidden');sleepInp.value='';}
+  });
+
+  // Feedback logic
+  const form=document.getElementById('wellnessForm');
+  const feedback=document.getElementById('feedback');
+  const stressTip=document.getElementById('stressTip');
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    const totalScreen=+form.workTime.value+ +form.scrollingTime.value+ +form.talkingTime.value+ +form.choresTime.value+ +form.otherScreenTime.value;
+    let out='<h2>Your Wellness Feedback</h2><ul>';
+    if(totalScreen>10) out+=`<li>High Screen Time: ${totalScreen.toFixed(1)} hrs</li>`;
+    else if(totalScreen<3) out+=`<li>Low Screen Time: ${totalScreen.toFixed(1)} hrs</li>`;
+    else out+=`<li>Moderate Screen Time: ${totalScreen.toFixed(1)} hrs</li>`;
+    const sleep=+form.sleepDuration.value;
+    if(sleep<6) out+=`<li>Insufficient Sleep: ${sleep} hrs</li>`;
+    else if(sleep>10) out+=`<li>Oversleeping: ${sleep} hrs</li>`;
+    else out+=`<li>Healthy Sleep: ${sleep} hrs</li>`;
+    const cal=+form.calories.value;
+    if(cal<1200) out+=`<li>Low Calorie Intake: ${cal}</li>`;
+    else if(cal>3500) out+=`<li>High Calorie Intake: ${cal}</li>`;
+    else out+=`<li>Calorie Intake: ${cal}</li>`;
+    const meals=[...document.querySelectorAll('#foodTab input[type=checkbox]:checked')].map(i=>i.value);
+    out+=`<li>Meals: ${meals.join(', ')||'None'}</li>`;
+    const hyd=+form.hydration.value;
+    if(hyd<6) out+=`<li>Low Hydration: ${hyd} cups</li>`; else out+=`<li>Hydration: ${hyd} cups</li>`;
+    const act=+form.activityDuration.value;
+    if(act<15) out+=`<li>Low Activity: ${act} mins</li>`; else out+=`<li>Activity: ${act} mins</li>`;
+    const prod=+form.productiveHours.value, br=+form.breakHours.value, dis=+form.distractionHours.value;
+    if(prod<3) out+=`<li>Low Productivity: ${prod} hrs</li>`; else out+=`<li>Good Productivity: ${prod} hrs</li>`;
+    if(br<1) out+=`<li>Few Breaks: ${br} hrs</li>`; else out+=`<li>Breaks: ${br} hrs</li>`;
+    if(dis>4) out+=`<li>High Distraction: ${dis} hrs</li>`; else out+=`<li>Low Distraction: ${dis} hrs</li>`;
+    out+='</ul>';
+    feedback.innerHTML=out;
+    feedback.classList.remove('hidden');
+    if(totalScreen>8 && dis>3){stressTip.textContent="Stress Tip: Take breaks & reduce distractions";stressTip.classList.remove('hidden');}
+    else if(sleep<6){stressTip.textContent="Stress Tip: Improve your sleep schedule";stressTip.classList.remove('hidden');}
+    else if(hyd<6){stressTip.textContent="Stress Tip: Drink more water";stressTip.classList.remove('hidden');}
+    else{stressTip.classList.add('hidden');}
+  });
+
+  // Sidebar toggle
+  const sidebar=document.getElementById('sidebar');
+  const menuBtn=document.getElementById('menu-toggle');
+  const closeBtn=document.getElementById('sidebar-close');
+  const main=document.querySelector('main');
+  menuBtn.addEventListener('click',()=>{
+    sidebar.classList.add('open');
+    main.classList.add('shifted');
+    menuBtn.style.display='none';
+  });
+  closeBtn.addEventListener('click',()=>{
+    sidebar.classList.remove('open');
+    main.classList.remove('shifted');
+    menuBtn.style.display='block';
+  });
+
+  // Escape HTML for safety
+  function escapeHtml(str){
+    return str.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Games</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f9ff;
+      color: #222;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 240px;
+      background: #003366;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding-top: 50px;
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+    .sidebar.closed { transform: translateX(-100%); }
+    .sidebar h2 {
+      text-align: center;
+      margin: 0 0 20px;
+      font-size: 1.3rem;
+    }
+    .sidebar a {
+      padding: 14px 20px;
+      color: #fff;
+      text-decoration: none;
+      display: block;
+      transition: background 0.3s;
+    }
+    .sidebar a:hover { background: #004080; }
+    .sidebar a.active {
+      background: #00509e;
+      font-weight: bold;
+    }
+
+    main {
+      flex: 1;
+      padding: 20px;
+      margin-left: 240px;
+      transition: margin-left 0.3s ease;
+    }
+    main.full { margin-left: 0; }
+
+    /* Header */
+    header {
+      background: #003366;
+      color: white;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 240px;
+      right: 0;
+      z-index: 500;
+    }
+    header h1 {
+      flex: 1;
+      text-align: center;
+      margin: 0;
+    }
+    #menu-toggle {
+      font-size: 22px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: none;
+      margin-right: 10px;
+    }
+
+    /* Container */
+    .container {
+      max-width: 720px;
+      margin: 80px auto 20px auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 8px 25px rgba(0,0,80,0.15);
+      text-align: center;
+    }
+    h2 {
+      color: #003366;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    /* Game styles */
+    .game-container { margin-top: 20px; }
+    .question-box {
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 8px;
+      background: #e3f2ff;
+      border-left: 6px solid #004085;
+      display: none;
+    }
+    .game-btn {
+      padding: 12px 20px;
+      margin: 8px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background: #004085;
+      color: #fff;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    .game-btn:hover { background: #002952; }
+    .feedback { font-weight: bold; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <button id="sidebar-close" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;position:absolute;top:10px;right:10px;">
+      &times;
+    </button>
+    <h2>Menu</h2>
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="questionnaire.html">📝 Questionnaire</a>
+    <a href="games.html" class="active">🎮 Games</a>
+    <a href="wellness.html">💡 Wellness Tracker</a>
+    <a href="face_recognition.html">👤 Face Recognition</a>
+    <li><a href="/resource-hub">📚 Resource Hub</a></li>
+
+  </nav>
+
+  <!-- Header -->
+  <header>
+    <button id="menu-toggle">☰</button>
+    <h1>🎮 Fun Games</h1>
+  </header>
+
+  <!-- Main -->
+  <main>
+    <div class="container">
+      <h2>Test your brain with quizzes and riddles!</h2>
+      <div class="game-container">
+        <h3>Score: <span id="score">0</span></h3>
+        <button class="game-btn" onclick="playQuiz()">Play Quiz</button>
+        <button class="game-btn" onclick="playRiddle()">Play Riddle</button>
+
+        <div id="questionBox" class="question-box">
+          <p id="questionText"></p>
+          <input type="text" id="answerInput" placeholder="Your answer">
+          <button class="game-btn" onclick="submitAnswer()">Submit</button>
+          <div id="feedback" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Sidebar toggle
+    document.addEventListener("DOMContentLoaded", function () {
+      const sidebar = document.querySelector(".sidebar");
+      const closeBtn = document.getElementById("sidebar-close");
+      const menuBtn = document.getElementById("menu-toggle");
+      const main = document.querySelector("main");
+      const header = document.querySelector("header");
+
+      closeBtn.addEventListener("click", function(){
+        sidebar.classList.add("closed");
+        main.classList.add("full");
+        header.style.left = "0";
+        menuBtn.style.display = "block";
+      });
+
+      menuBtn.addEventListener("click", function(){
+        sidebar.classList.remove("closed");
+        main.classList.remove("full");
+        header.style.left = "240px";
+        menuBtn.style.display = "none";
+      });
+    });
+
+    // Game logic
+    let score = 0;
+    let currentAnswer = "";
+    let currentAnswerPoints = 0;
+
+    let quizPool = [
+      ["What is the capital of France?", "paris"],
+      ["Solve: 12 + 15 = ?", "27"],
+      ["Who developed the theory of relativity?", "einstein"],
+      ["Binary of 5 is?", "101"],
+      ["Largest planet in the solar system?", "jupiter"],
+      ["What is the square root of 81?", "9"],
+      ["Who is known as the Father of Computers?", "babbage"],
+      ["Chemical symbol of water?", "h2o"],
+      ["Python is named after which comedy group?", "monty python"],
+      ["Fastest land animal?", "cheetah"]
+    ];
+
+    let riddlePool = [
+      ["I speak without a mouth and hear without ears. What am I?", "echo"],
+      ["What has keys but no locks?", "piano"],
+      ["I’m tall when I’m young and short when I’m old. What am I?", "candle"],
+      ["What has hands but can’t clap?", "clock"],
+      ["What has to be broken before you can use it?", "egg"],
+      ["The more you take, the more you leave behind. What am I?", "footsteps"],
+      ["What can travel around the world while staying in a corner?", "stamp"]
+    ];
+
+    function pickQuestion(pool) {
+      if (pool.length === 0) return null;
+      const idx = Math.floor(Math.random() * pool.length);
+      return pool.splice(idx, 1)[0];
+    }
+
+    function playQuiz() {
+      const q = pickQuestion(quizPool);
+      if (!q) { alert("No more quiz questions!"); return; }
+      showQuestion(q[0], q[1], 15);
+    }
+
+    function playRiddle() {
+      const q = pickQuestion(riddlePool);
+      if (!q) { alert("No more riddles!"); return; }
+      showQuestion(q[0], q[1], 20);
+    }
+
+    function showQuestion(question, answer, points) {
+      currentAnswer = answer;
+      currentAnswerPoints = points;
+      document.getElementById("questionText").innerText = question;
+      document.getElementById("answerInput").value = "";
+      document.getElementById("feedback").innerText = "";
+      document.getElementById("questionBox").style.display = "block";
+    }
+
+    function submitAnswer() {
+      const user = document.getElementById("answerInput").value.trim().toLowerCase();
+      const feedback = document.getElementById("feedback");
+      if (user === currentAnswer) {
+        score += currentAnswerPoints;
+        document.getElementById("score").innerText = score;
+        feedback.innerText = "✅ Correct!";
+        feedback.style.color = "green";
+      } else {
+        feedback.innerText = `❌ Wrong! Correct answer was ${currentAnswer}`;
+        feedback.style.color = "red";
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Face Recognition</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background:#f5f9ff;color:#222;min-height:100vh;display:flex;flex-direction:column;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      position:fixed;top:0;left:0;height:100%;width:240px;
+      background:#003366;color:#fff;display:flex;flex-direction:column;
+      padding-top:50px;transition:transform .28s ease;z-index:1000;
+    }
+    .sidebar h2{ text-align:center;margin-bottom:18px;font-size:1.2rem; }
+    .sidebar a{ padding:14px 20px;color:#fff;text-decoration:none;display:block;transition:background .2s; }
+    .sidebar a:hover{ background:#004080 }
+    .sidebar a.active{ background:#00509e;font-weight:700 }
+    .sidebar.closed{ transform: translateX(-100%); }
+
+    /* Close button inside sidebar */
+    #sidebar-close{
+      position:absolute;right:10px;top:8px;background:none;border:none;
+      color:white;font-size:22px;cursor:pointer;
+    }
+
+    /* Menu toggle (when sidebar closed) */
+    #menu-toggle{
+      position:fixed; left:12px; top:12px; z-index:1101;
+      background:#003366;border:none;color:white;font-size:22px;
+      cursor:pointer; padding:6px 10px; border-radius:6px;
+      display:none;
+    }
+
+    /* Header */
+    header.topbar{
+      width:100%; padding:10px 16px; background:#003366; color:white;
+      display:flex; align-items:center; gap:12px; z-index:900;
+    }
+    header.topbar .title{ flex:1; text-align:center; font-size:18px; font-weight:700}
+
+    /* Main content */
+    main{ flex:1; padding:20px; margin-left:240px; transition:margin-left .28s ease; }
+    main.full{ margin-left:0; }
+
+    .container{ max-width:720px; margin:20px auto; background:#fff; border-radius:12px; padding:30px; box-shadow:0 8px 25px rgba(0,0,80,0.12); text-align:center;}
+    h1{ color:#003366; margin-bottom:18px; font-weight:700; }
+
+    /* Camera */
+    video, canvas{ border-radius:12px; max-width:100%; box-shadow:0 6px 15px rgba(0,0,0,0.12); }
+    .btn{ margin-top:16px; padding:12px 20px; border-radius:8px; border:none; cursor:pointer; font-weight:600; background:#004085; color:#fff; }
+    .btn:hover{ background:#002952; }
+    #resultBox{ margin-top:18px; padding:14px; border-radius:8px; background:#e3f2ff; border-left:6px solid #004085; color:#003366; display:none; text-align:left; }
+    pre.serverText{ background:#00295210; padding:10px; border-radius:6px; white-space:pre-wrap; word-wrap:break-word; max-height:220px; overflow:auto; }
+
+    /* small responsive */
+    @media (max-width:900px){ main{ margin-left:0 } .sidebar{ width:220px } }
+  </style>
+</head>
+<body>
+
+  <!-- sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <button id="sidebar-close" aria-label="Close menu">&times;</button>
+    <h2>Menu</h2>
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="questionnaire.html">📝 Questionnaire</a>
+    <a href="games.html">🎮 Games</a>
+    <a href="wellness.html">💡 Wellness Tracker</a>
+    <li><a href="/resource-hub">📚 Resource Hub</a></li>
+  </nav>
+
+  <!-- fixed toggle shown when sidebar closed -->
+  <button id="menu-toggle" aria-label="Open menu">☰</button>
+
+  <!-- top header -->
+  <header class="topbar" role="banner">
+    <div class="title">Face Recognition</div>
+  </header>
+
+  <!-- main -->
+  <main id="main">
+    <div class="container">
+      <h1>Face Recognition</h1>
+
+      <!-- camera -->
+      <video id="video" autoplay playsinline width="640" height="480"></video>
+      <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+
+      <div style="margin-top:12px;">
+        <button id="startBtn" class="btn">Start Camera</button>
+        <button id="captureBtn" class="btn" disabled>Capture & Analyze</button>
+        <button id="stopBtn" class="btn" disabled>Stop Camera</button>
+      </div>
+
+      <div id="resultBox" role="status" aria-live="polite"></div>
+    </div>
+
+    <div style="max-width:720px;margin:14px auto;text-align:center">
+      <button id="detectEmotion" class="btn">🎭 Detect Emotion</button>
+      <div id="emotionResult" style="margin-top:10px;color:#003366">No emotion detected yet.</div>
+    </div>
+  </main>
+
+<script>
+/* ----------------------
+   Sidebar toggle behaviour
+   ---------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  const sidebar = document.getElementById('sidebar');
+  const closeBtn = document.getElementById('sidebar-close');
+  const menuBtn = document.getElementById('menu-toggle');
+  const main = document.getElementById('main');
+
+  menuBtn.style.display = 'none';
+
+  closeBtn.addEventListener('click', () => {
+    sidebar.classList.add('closed');
+    main.classList.add('full');
+    menuBtn.style.display = 'block';
+  });
+
+  menuBtn.addEventListener('click', () => {
+    sidebar.classList.remove('closed');
+    main.classList.remove('full');
+    menuBtn.style.display = 'none';
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 900) {
+      sidebar.classList.remove('closed');
+      main.classList.remove('full');
+      menuBtn.style.display = 'none';
+    }
+  });
+});
+
+/* ----------------------
+   Camera + capture logic
+   ---------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const startBtn = document.getElementById('startBtn');
+  const captureBtn = document.getElementById('captureBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const resultBox = document.getElementById('resultBox');
+  let stream = null;
+
+  video.addEventListener('loadedmetadata', () => {
+    if (video.videoWidth && video.videoHeight) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+    }
+  });
+
+  // --- Start Camera ---
+  startBtn.addEventListener('click', async () => {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error("Camera API not supported. Try using HTTPS or localhost.");
+      }
+
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      video.srcObject = stream;
+      await video.play();
+
+      if (video.videoWidth && video.videoHeight) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+      }
+
+      startBtn.disabled = true;
+      captureBtn.disabled = false;
+      stopBtn.disabled = false;
+      resultBox.style.display = 'none';
+    } catch (err) {
+      alert('Error accessing camera: ' + (err.message || err));
+      console.error(err);
+    }
+  });
+
+  // --- Stop Camera ---
+  stopBtn.addEventListener('click', () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      stream = null;
+      video.srcObject = null;
+    }
+    startBtn.disabled = false;
+    captureBtn.disabled = true;
+    stopBtn.disabled = true;
+    resultBox.style.display = 'none';
+  });
+
+  // --- Capture & Analyze ---
+  captureBtn.addEventListener('click', async () => {
+    try {
+      if (!stream) {
+        alert("Camera is not running. Please click Start Camera first.");
+        return;
+      }
+
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = canvas.toDataURL('image/png');
+
+      resultBox.style.display = 'block';
+      resultBox.textContent = 'Uploading image...';
+
+      const res = await fetch('/api/face_recognition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: imageData })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        resultBox.innerHTML = `<strong>Detected:</strong> ${data.emotion || JSON.stringify(data)}`;
+      } else {
+        throw new Error(data.error || "Unknown error");
+      }
+    } catch (err) {
+      resultBox.style.display = 'block';
+      resultBox.innerHTML = `<strong>Error:</strong> ${err.message}`;
+      console.error(err);
+    }
+  });
+
+  function escapeHtml(s){
+    if (s == null) return '';
+    return String(s)
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'", '&#39;');
+  }
+});
+
+
+/* ----------------------
+   Emotion detection
+   ---------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  const video = document.getElementById('video');
+  const emotionBtn = document.getElementById('detectEmotion');
+  const emotionResult = document.getElementById('emotionResult');
+
+  emotionBtn.addEventListener('click', async () => {
+    try {
+      if (!video || !video.srcObject) throw new Error('Start the camera first.');
+      const tmp = document.createElement('canvas');
+      tmp.width = video.videoWidth || 640;
+      tmp.height = video.videoHeight || 480;
+      const tctx = tmp.getContext('2d');
+      tctx.drawImage(video, 0, 0, tmp.width, tmp.height);
+      const dataUrl = tmp.toDataURL('image/jpeg');
+
+      emotionResult.textContent = 'Detecting...';
+
+      const res = await fetch('/api/emotion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: dataUrl })
+      });
+
+      const text = await res.text();
+      const contentType = (res.headers.get('content-type') || '').toLowerCase();
+
+      if (contentType.includes('application/json')) {
+        const json = JSON.parse(text);
+        if (!res.ok) throw new Error(json.error || json.message || `HTTP ${res.status}`);
+        emotionResult.innerHTML = `😊 Emotion: <b>${escapeHtml(json.emotion || json.result || 'unknown')}</b>`;
+      } else {
+        const snippet = text ? text.slice(0,800) : '(empty)';
+        throw new Error('Server returned non-JSON. Check backend. Preview: ' + snippet);
+      }
+    } catch (err) {
+      console.error(err);
+      emotionResult.textContent = '❌ Error detecting emotion: ' + (err.message || err);
+    }
+  });
+
+  function escapeHtml(s){
+    if (s == null) return '';
+    return String(s)
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#39;');
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,142 @@
+/* style.css - MedCare light theme */
+:root{
+  --primary: #3a609c;
+  --primary-dark: #543a7d;
+  --accent: #6b8db3;
+  --muted: #777;
+  --card-bg: #ffffff;
+  --page-bg-1: rgba(219,230,246,1);
+  --page-bg-2: rgba(197,121,109,0.65);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, rgba(219,230,246,0.95), rgba(237,236,241,0.6));
+  color:#222;
+  min-height:100vh;
+  padding:20px;
+  display:flex;
+  justify-content:center;
+}
+
+.container{
+  width:100%;
+  max-width:960px;
+}
+
+/* Header */
+header{
+  text-align:left;
+  margin-bottom:18px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.logo i{
+  font-size:30px;
+  color:var(--primary);
+}
+.logo h1{
+  font-size:24px;
+  color:var(--primary);
+  margin:0;
+}
+
+/* Card */
+.card{
+  background:var(--card-bg);
+  border-radius:14px;
+  padding:18px;
+  box-shadow: 0 8px 22px rgba(18,34,63,0.06);
+  margin-bottom:16px;
+}
+.auth-card{max-width:420px}
+
+/* text + headings */
+.card h2{ margin:0 0 12px 0; color:var(--primary); font-size:18px; }
+.btn{
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  background:var(--primary);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+}
+.btn:hover{ background:var(--primary-dark); }
+
+.wide-input{
+  flex:1;
+  min-width:240px;
+  padding:10px 12px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  font-size:15px;
+}
+
+/* graphs layout */
+.graph-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+/* history list */
+.history-list{
+  list-style:none;
+  padding:8px 0 0;
+  margin:0;
+  max-height:240px;
+  overflow:auto;
+}
+.history-list li{
+  padding:10px;
+  border-bottom:1px solid #f1f1f1;
+  font-size:14px;
+  color:#333;
+}
+
+/* 💡 Suggestion box */
+.suggestion-box {
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  font-style: italic;
+  display: inline-block;
+}
+
+/* Stress level colors */
+.high-stress {
+  background-color: #ffe5e5;
+  border-left: 4px solid #e53935;
+  color: #b71c1c;
+}
+.moderate-stress {
+  background-color: #fff4e5;
+  border-left: 4px solid #ffa000;
+  color: #e65100;
+}
+.low-stress {
+  background-color: #fffde7;
+  border-left: 4px solid #cddc39;
+  color: #827717;
+}
+.no-stress {
+  background-color: #e8f5e9;
+  border-left: 4px solid #43a047;
+  color: #1b5e20;
+}
+
+/* small responsive */
+@media (max-width:880px){
+  .graph-grid{ grid-template-columns:1fr; }
+  .auth-card{ width:100% }
+}
+
+
+/* Modal */
+.modal { position: fixed; left:0; top:0; right:0; bottom:0; background: rgba(10,20,30,0.45); display:flex; align-items:flex-start; justify-content:center; z-index:9999; }
+.modal-content { animation: pop .18s ease; }
+@keyframes pop { from { transform: translateY(-8px) scale(0.995); opacity:0 } to { transform:none; opacity:1 } }

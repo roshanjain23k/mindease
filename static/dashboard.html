@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedCare Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: linear-gradient(rgba(58, 96, 156, 0.85), rgba(84, 58, 125, 0.85)),
+                  url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-4.0.3&auto=format&fit=crop&w=1800&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 25px; 
+}
+
+    @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; margin-bottom: 30px; grid-column: 1 / -1; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+    .logo { display: flex; align-items: center; }
+    .logo i { font-size: 32px; color: white; margin-right: 15px; }
+    .logo h1 { color: white; font-size: 28px; font-weight: 700; }
+    .user-info { display: flex; align-items: center; color: white; }
+    .card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); transition: transform 0.3s; height: fit-content; margin-bottom: 20px; }
+    .card:hover { transform: translateY(-5px); }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+    .card-title { font-size: 20px; color: #3a609c; font-weight: 600; }
+    .card-icon { width: 40px; height: 40px; border-radius: 50%; background: #eef4ff; display: flex; align-items: center; justify-content: center; color: #3a609c; font-size: 18px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; color: #3a609c; font-weight: 500; }
+    .form-control { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; transition: all 0.3s; }
+    .form-control:focus { border-color: #3a609c; box-shadow: 0 0 0 2px rgba(58, 96, 156, 0.2); outline: none; }
+    textarea.form-control { min-height: 150px; resize: vertical; }
+    .btn { padding: 14px 25px; background-color: #3a609c; border: none; border-radius: 8px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; transition: background-color 0.3s; width: 100%; }
+    .btn:hover { background-color: #543a7d; }
+    .journal-entries { max-height: 400px; overflow-y: auto; }
+    .journal-item { padding: 15px 0; border-bottom: 1px solid #eee; }
+    .journal-item:last-child { border-bottom: none; }
+    .journal-date { font-size: 14px; color: #777; margin-bottom: 5px; display: flex; align-items: center; }
+    .journal-date i { margin-right: 8px; color: #3a609c; }
+    .journal-content { font-size: 16px; line-height: 1.5; margin-bottom: 10px; }
+    .progress-tracker { margin-top: 20px; padding: 15px; background: #ffffff; border-radius: 10px; box-shadow: 0px 2px 6px rgba(0,0,0,0.1); }
+    .progress-tracker h3 { margin-bottom: 10px; font-size: 18px; color: #333; }
+    .progress-bar { width: 100%; height: 12px; background: #eee; border-radius: 6px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #4cafef, #2196f3); transition: width 0.5s ease-in-out; }
+    .relax-gallery { position: relative; width: 100%; height: 250px; overflow: hidden; border-radius: 12px; }
+    .relax-gallery img { width: 100%; height: 250px; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0; transition: opacity 1.5s ease-in-out; }
+    .relax-gallery img.active { opacity: 1; }
+    /* modal backdrop + center */
+#detailModal {
+  display: none; /* toggled by JS */
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+#detailModal .modal-content {
+  max-width: 900px;
+  width: calc(100% - 40px);
+  margin: 0 auto;
+}
+/* Set a consistent height for charts */
+.chart-container {
+  position: relative;
+  height: 200px;
+  width: 100%;
+}
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 220px;
+  background: #3a609c;
+  padding-top: 30px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+.sidebar h2 {
+  color: white;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: bold;
+}
+.sidebar a {
+  padding: 12px 20px;
+  text-decoration: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+.sidebar a i {
+  margin-right: 10px;
+}
+.sidebar a:hover {
+  background: #543a7d;
+}
+.sidebar a.active {
+  background: #2d4c7c;
+  font-weight: bold;
+}
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 220px;
+  background: #3a609c;
+  padding-top: 30px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+
+.sidebar.closed {
+  transform: translateX(-100%);
+}
+
+.container {
+  transition: margin-left 0.3s ease;
+  margin-left: 240px;
+}
+
+.container.full {
+  margin-left: 20px;
+}
+
+  </style>
+</head>
+<body>
+  <div id="sidebar" class="sidebar">
+    <button id="sidebar-close" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;position:absolute;top:10px;right:10px;">
+    &times;
+  </button>
+  <h2>📌 Menu</h2>
+    <a href="peer_support.html">🤝 Peer Support</a>
+    <a href="games.html">🎮 Games</a>
+    <a href="wellness.html">💡 Wellness Tracker</a>
+    <a href="face_recognition.html" class="active">👤 Face Recognition</a>
+    <li><a href="/resource-hub">📚 Resource Hub</a></li>
+
+    <a href="emergencypage.html">🚑 Emergency Care</a>
+    <a href="signup.html">➕ Create Account</a>
+    <a href="admin_login.html" class="btn" 
+   style="width:auto; padding:8px 12px; margin-left:12px; display:inline-block; background:#e53935;">
+   🔑 Admin Login
+</a>
+
+    <a href="#" id="logout-btn">🚪 Log Out</a>
+</div>
+
+
+  <div class="container" style="margin-left:240px;">
+    <!-- Header -->
+    <header>
+      <div class="logo">
+        <i class="fas fa-book-open"></i>
+        <h1>MedCare</h1>
+      </div>
+      <div class="user-info">
+        <div>
+          <h3 id="user-name">Sarah Johnson</h3>
+          <p id="last-entry">Last entry: None</p>
+        </div>
+      </div>
+      <a id="open-chat-redirect" href="/chatbot/index.html" class="btn" style="width:auto; padding:8px 12px; margin-left:12px; display:inline-block;">Open Chatbox</a>
+      <a id="open-suggestion" href="#" class="btn" style="width:auto; padding:8px 12px; margin-left:12px; display:inline-block;">View Suggestion</a>
+
+      </div>
+      <button id="menu-toggle" style="font-size:22px;background:none;border:none;color:white;cursor:pointer;display:none;">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="logo">
+    <i class="fas fa-book-open"></i>
+    <h1>MedCare</h1>
+  </div>
+    </header>
+
+    <!-- Questionnaire Summary -->
+    <div class="card">
+      <h2>Tracking — Questionnaire Summary</h2>
+      <p>Daily questionnaire insights. Click a metric to view details.</p>
+      <div style="display:flex;gap:12px;margin-top:12px;">
+        <button id="openQuestionnaire" class="btn">Take Questionnaire</button>
+      </div>
+      <div style="margin-top:14px;">
+        <div style="display:flex;gap:12px;">
+          <div style="flex:1" class="card">
+  <h3>Stress</h3>
+  <div class="chart-container">
+    <canvas id="chartStress"></canvas>
+  </div>
+</div>
+<div style="flex:1" class="card">
+  <h3>Anxiety</h3>
+  <div class="chart-container">
+    <canvas id="chartAnxiety"></canvas>
+  </div>
+</div>
+<div style="flex:1" class="card">
+  <h3>Depression</h3>
+  <div class="chart-container">
+    <canvas id="chartDepression"></canvas>
+  </div>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="card">
+  <div class="card-header">
+    <h2 class="card-title">New Journal Entry</h2>
+    <div class="card-icon"><i class="fas fa-pen"></i></div>
+  </div>
+  <form id="journal-form">
+    <div class="form-group">
+      <label for="entry-date">Choose Date</label>
+      <input type="date" id="entry-date" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label for="entry-title">Title</label>
+      <input type="text" id="entry-title" class="form-control" placeholder="Optional title">
+    </div>
+    <div class="form-group">
+      <label for="entry-content">Entry</label>
+      <textarea id="entry-content" class="form-control" placeholder="Write your thoughts..." required></textarea>
+    </div>
+    <button type="submit" class="btn">Save Entry</button>
+  </form>
+</div>
+
+    <div class="right-column">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Recent Entries</h2>
+          <div class="card-icon"><i class="fas fa-history"></i></div>
+        </div>
+        <div class="journal-entries" id="recent-entries"></div>
+      </div>
+
+      <div class="progress-tracker">
+        <h3>Your Progress</h3>
+        <p id="streak-text">You have a 0-day streak. Start journaling today!</p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-header">
+          <h2 class="card-title">Relaxing Music</h2>
+          <div class="card-icon"><i class="fas fa-music"></i></div>
+        </div>
+        <div class="card-body" style="text-align:center;">
+          <button onclick="window.open('https://open.spotify.com/playlist/37i9dQZF1DWU0ScTcjJBdj', '_blank')" class="btn" style="max-width:220px;">
+            Play Calm Playlist 🎶
+          </button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-header">
+          <h2 class="card-title">Relax & Refresh</h2>
+          <div class="card-icon"><i class="fas fa-image"></i></div>
+        </div>
+        <div id="relax-gallery" class="relax-gallery">
+          <img src="https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?w=800" alt="Calm Beach">
+          <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800" alt="Mountains">
+          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Ocean Waves">
+          <img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=800" alt="Forest Path">
+          <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800" alt="Waterfall">
+          <img src="https://images.unsplash.com/photo-1465146633011-14f18c72b735?w=800" alt="Sunset Lake">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    (function(){
+      const uid = localStorage.getItem("user_id");
+      if(!uid){ window.location.href = "login.html"; }
+    })();
+  </script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const storedName = localStorage.getItem("user_name");
+    if (storedName) document.getElementById("user-name").textContent = storedName;
+
+    const savedLast = localStorage.getItem("lastEntryTime");
+    if (savedLast) document.getElementById("last-entry").textContent = savedLast;
+
+    const journalForm = document.getElementById("journal-form");
+  const recentContainer = document.getElementById("recent-entries");
+
+  if (journalForm && recentContainer) {
+    journalForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const title = document.getElementById("entry-title").value.trim();
+      const content = document.getElementById("entry-content").value.trim();
+      const entryDate = document.getElementById("entry-date").value;
+
+      if (!content) { alert("Please write something."); return; }
+      if (!entryDate) { alert("Please choose a date."); return; }
+
+      const entry = document.createElement("div");
+      entry.className = "journal-item";
+
+      const displayDate = new Date(entryDate).toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+
+      const titleHtml = title ? `<div style="font-weight:700;margin-bottom:6px">${escapeHtml(title)}</div>` : "";
+      entry.innerHTML = `
+        <div class="journal-date"><i class="fas fa-calendar"></i> ${escapeHtml(displayDate)}</div>
+        ${titleHtml}
+        <div class="journal-content">${escapeHtml(content)}</div>
+      `;
+
+      recentContainer.insertBefore(entry, recentContainer.firstChild);
+
+      document.getElementById("last-entry").textContent = "Last entry: " + displayDate;
+      localStorage.setItem("lastEntryTime", "Last entry: " + displayDate);
+
+      // ✅ update streak based on chosen date
+      updateStreak(entryDate);
+
+      journalForm.reset();
+    });
+  }
+
+  function escapeHtml(str) {
+    return str.replaceAll("&","&amp;").replaceAll("<","&lt;")
+              .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+              .replaceAll("'", "&#39;");
+  }
+
+  function updateStreak(entryDate) {
+    let chosenDate = new Date(entryDate).toLocaleDateString();
+    let lastEntryDate = localStorage.getItem("lastEntryDate");
+    let streak = parseInt(localStorage.getItem("streak")) || 0;
+
+    if (lastEntryDate !== chosenDate) {
+      if (lastEntryDate) {
+        let yesterday = new Date(entryDate);
+        yesterday.setDate(yesterday.getDate() - 1);
+        if (lastEntryDate === yesterday.toLocaleDateString()) {
+          streak += 1;
+        } else {
+          streak = 1;
+        }
+      } else {
+        streak = 1;
+      }
+
+      localStorage.setItem("lastEntryDate", chosenDate);
+      localStorage.setItem("streak", streak);
+    }
+
+    document.getElementById("streak-text").textContent = `🔥 You are on a ${streak}-day journaling streak!`;
+    document.getElementById("progress-fill").style.width = Math.min(streak * 10, 100) + "%";
+  }
+});
+  </script>
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const suggestionBtn = document.getElementById("open-suggestion");
+    if (suggestionBtn) {
+      suggestionBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        const days = ["sun.html","monday.html","tues.html","wed.html","thr.html","fri.html","sat.html"];
+        const today = new Date().getDay();
+        window.location.href = "/" + days[today];
+      });
+    }
+  });
+  </script>
+
+  <script>
+ document.addEventListener("DOMContentLoaded", function(){
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", function(e){
+      e.preventDefault();
+      localStorage.clear();
+      window.location.href = "login.html";
+    });
+  }
+});
+
+  </script>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const gallery = document.querySelectorAll("#relax-gallery img");
+    let current = 0;
+    function showNextImage() {
+      gallery[current].classList.remove("active");
+      current = (current + 1) % gallery.length;
+      gallery[current].classList.add("active");
+    }
+    if (gallery.length > 0) {
+      gallery[0].classList.add("active");
+      setInterval(showNextImage, 5000);
+    }
+  });
+  </script>
+
+<!-- Detail modal -->
+<div id="detailModal" class="modal" style="display:none;">
+  <div class="modal-content card" style="max-width:900px;margin:40px auto;padding:18px;">
+    <span id="modalClose" style="cursor:pointer;float:right;font-size:18px">&times;</span>
+    <h3 id="modalTitle">Details</h3>
+    <canvas id="modalChart" height="240"></canvas>
+    <div id="modalNotes" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- add Chart.js (place before any script that references Chart) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  const openQ = document.getElementById("openQuestionnaire");
+  if(openQ) openQ.addEventListener("click", ()=> window.location.href='questionnaire.html');
+
+  const uid = localStorage.getItem("user_id") || 1;
+  fetch('/api/questionnaire/history?user_id=' + uid)
+    .then(r=>r.json()).then(data=>{
+      if(Array.isArray(data) && data.length){
+        data = data.slice().reverse();
+        const labels = data.map(it=> new Date(it.timestamp).toLocaleDateString());
+        const stress = data.map(it=> it.stress);
+        const anxiety = data.map(it=> it.anxiety);
+        const depression = data.map(it=> it.depression);
+
+        try{
+          const ctxS = document.getElementById('chartStress').getContext('2d');
+          new Chart(ctxS, { type:'line', data:{ labels, datasets:[{label:'Stress', data:stress, fill:true, borderColor:'#e53935', backgroundColor:'rgba(229,57,53,0.08)'}] }, options:{responsive:true, maintainAspectRatio:false} });
+
+          const ctxA = document.getElementById('chartAnxiety').getContext('2d');
+          new Chart(ctxA, { type:'line', data:{ labels, datasets:[{label:'Anxiety', data:anxiety, fill:true, borderColor:'#ffa000', backgroundColor:'rgba(255,160,0,0.08)'}] }, options:{responsive:true, maintainAspectRatio:false} });
+
+          const ctxD = document.getElementById('chartDepression').getContext('2d');
+          new Chart(ctxD, { type:'line', data:{ labels, datasets:[{label:'Depression', data:depression, fill:true, borderColor:'#3a609c', backgroundColor:'rgba(58,96,156,0.08)'}] }, options:{responsive:true, maintainAspectRatio:false} });
+        }catch(e){
+          console.error('Chart error', e);
+        }
+      } else {
+        // no data
+      }
+    }).catch(e=>{console.error(e);});
+});
+</script>
+you mean this one
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const openQ = document.getElementById('openQuestionnaire');
+  if(openQ) openQ.addEventListener('click', ()=> window.location.href='questionnaire.html');
+
+  const uid = localStorage.getItem('user_id') || 1;
+
+  // If questionnaire just saved, remove the flag (no forced reload)
+  if(localStorage.getItem('refreshGraphs') === 'true'){
+    localStorage.removeItem('refreshGraphs');
+    // optional: show a brief toast / console log
+    console.log('Refreshing charts after questionnaire submit');
+  }
+
+  // fetch history and render charts
+  fetch('/api/questionnaire/history?user_id=' + uid)
+    .then(res => res.json())
+    .then(data => {
+      if(!Array.isArray(data) || data.length === 0){
+        console.log('No questionnaire history found');
+        return;
+      }
+
+      const rows = data.slice().reverse(); // oldest -> newest for charting
+      const labels = rows.map(r => new Date(r.timestamp).toLocaleDateString());
+      const stress = rows.map(r => r.stress);
+      const anxiety = rows.map(r => r.anxiety);
+      const depression = rows.map(r => r.depression);
+
+      // destroy previous charts if exist
+      if(window.chartStress) window.chartStress.destroy();
+      if(window.chartAnxiety) window.chartAnxiety.destroy();
+      if(window.chartDepression) window.chartDepression.destroy();
+
+      const commonOptions = {
+        responsive:true,
+        maintainAspectRatio:false,
+        scales:{ y: { min:0, max:100 } },
+        plugins:{ legend:{ display:false }, tooltip:{ mode:'index', intersect:false } }
+      };
+
+      window.chartStress = new Chart(document.getElementById('chartStress'), {
+        type:'line',
+        data:{ labels, datasets:[{ label:'Stress', data:stress, fill:true, borderColor:'#e53935', backgroundColor:'rgba(229,57,53,0.08)', tension:0.3 }]},
+        options: commonOptions
+      });
+
+      window.chartAnxiety = new Chart(document.getElementById('chartAnxiety'), {
+        type:'line',
+        data:{ labels, datasets:[{ label:'Anxiety', data:anxiety, fill:true, borderColor:'#ffa000', backgroundColor:'rgba(255,160,0,0.08)', tension:0.3 }]},
+        options: commonOptions
+      });
+
+      window.chartDepression = new Chart(document.getElementById('chartDepression'), {
+        type:'line',
+        data:{ labels, datasets:[{ label:'Depression', data:depression, fill:true, borderColor:'#3a609c', backgroundColor:'rgba(58,96,156,0.08)', tension:0.3 }]},
+        options: commonOptions
+      });
+
+      // click handlers to open modal detail
+      document.getElementById('chartStress').parentElement.addEventListener('click', ()=> openDetail('Stress', labels, stress, '#e53935'));
+      document.getElementById('chartAnxiety').parentElement.addEventListener('click', ()=> openDetail('Anxiety', labels, anxiety, '#ffa000'));
+      document.getElementById('chartDepression').parentElement.addEventListener('click', ()=> openDetail('Depression', labels, depression, '#3a609c'));
+    })
+    .catch(err => console.error('Error loading questionnaire history:', err));
+
+
+  // detail modal logic
+  window.openDetail = function(title, labels, values, color){
+    const modal = document.getElementById('detailModal');
+    const titleEl = document.getElementById('modalTitle');
+    const notes = document.getElementById('modalNotes');
+    titleEl.textContent = title + ' — Detailed';
+    notes.innerHTML = '<p>Severity bands: <span style="color:#4caf50">Green</span>, <span style="color:#ffb74d">Orange</span>, <span style="color:#ff7043">Red</span>, <span style="color:#d32f2f">Dark Red</span></p>';
+    modal.style.display = 'flex';
+
+    if(window._modalChart) window._modalChart.destroy();
+    const ctx = document.getElementById('modalChart').getContext('2d');
+    window._modalChart = new Chart(ctx, {
+      type:'line',
+      data:{ labels, datasets:[{ label:title, data:values, borderColor:color, backgroundColor:color, fill:true, tension:0.3 }]},
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        scales:{ y:{ min:0, max:100 } },
+        plugins:{ tooltip:{ callbacks:{ label: function(ctx){ return ctx.formattedValue + ' — ' + severityText(Number(ctx.raw)); } } } }
+      }
+    });
+  };
+
+  function severityText(v){
+    if(v<=25) return 'Low';
+    if(v<=50) return 'Mild';
+    if(v<=75) return 'High';
+    return 'Very high';
+  }
+
+  // close modal
+  const modalClose = document.getElementById('modalClose');
+  if(modalClose) modalClose.addEventListener('click', function(){
+    const modal = document.getElementById('detailModal');
+    modal.style.display = 'none';
+    if(window._modalChart) window._modalChart.destroy();
+  });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const sidebar = document.getElementById("sidebar");
+  const closeBtn = document.getElementById("sidebar-close");
+  const menuBtn = document.getElementById("menu-toggle");
+  const container = document.querySelector(".container");
+
+  closeBtn.addEventListener("click", function(){
+    sidebar.classList.add("closed");
+    container.classList.add("full");
+    menuBtn.style.display = "block";
+  });
+
+  menuBtn.addEventListener("click", function(){
+    sidebar.classList.remove("closed");
+    container.classList.remove("full");
+    menuBtn.style.display = "none";
+  });
+});
+</script>
+
+</body>
+</html>

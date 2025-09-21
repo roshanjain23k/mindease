@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mental Health Emergency - MindEase Health India</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* keep the same theme & styling */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f8f9fa; color: #333; line-height: 1.6; }
+    .emergency-alert { background-color: #e53935; color: white; padding: 10px 0; text-align: center; font-weight: bold; }
+    header { background: linear-gradient(135deg, #1a237e 0%, #283593 100%); color: white; padding: 20px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .container { width: 90%; max-width: 1200px; margin: 0 auto; }
+    .header-content { display: flex; justify-content: space-between; align-items: center; }
+    .logo { display: flex; align-items: center; }
+    .logo i { font-size: 2.5rem; margin-right: 10px; }
+    .logo h1 { font-size: 1.8rem; }
+    .emergency-number { font-size: 1.8rem; font-weight: bold; color: #ffeb3b; }
+    .hero { background: url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1920&q=80') no-repeat center center/cover; height: 500px; display: flex; align-items: center; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); position: relative; }
+    .hero::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 35, 126, 0.7); }
+    .hero-content { z-index: 1; max-width: 600px; }
+    .hero-content h2 { font-size: 2.6rem; margin-bottom: 20px; }
+    .hero-content p { font-size: 1.2rem; margin-bottom: 30px; }
+    .btn { display: inline-block; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; text-transform: uppercase; transition: all 0.3s ease; }
+    .btn-emergency { background-color: #e53935; color: white; }
+    .btn-emergency:hover { background-color: #c62828; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); }
+    .section-title { text-align: center; margin-bottom: 40px; color: #1a237e; font-size: 2.2rem; }
+    .services, .instruction-steps, .location-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+    .service-card, .step, .location-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); padding: 20px; transition: transform 0.3s ease; }
+    .service-card:hover, .step:hover, .location-card:hover { transform: translateY(-10px); }
+    .service-icon { background: #1a237e; color: white; font-size: 2rem; padding: 20px; text-align: center; }
+    footer { background: #1a237e; color: white; padding: 40px 0; text-align: center; }
+    .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; text-align: left; }
+    .footer-section h3 { margin-bottom: 20px; font-size: 1.3rem; }
+    .footer-bottom { margin-top: 30px; padding-top: 20px; border-top: 1px solid #3949ab; }
+  </style>
+</head>
+<body>
+  <div class="emergency-alert">
+    <div class="container">
+      <p><i class="fas fa-exclamation-triangle"></i> IF YOU FEEL UNSAFE OR SUICIDAL, CALL THE 24/7 KIRAN HELPLINE: <strong>1800-599-0019</strong></p>
+    </div>
+  </div>
+
+  <header>
+    <div class="container header-content">
+      <div class="logo">
+        <i class="fas fa-brain"></i>
+        <h1>MindEase India</h1>
+      </div>
+      <div class="emergency-contact">
+        <p>24/7 Mental Health Support for Students</p>
+        <p class="emergency-number"><i class="fas fa-phone"></i> 1800-599-0019</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container hero-content">
+      <h2>You're Not Alone</h2>
+      <p>Facing exam stress, anxiety, or feeling overwhelmed? Reach out now. Our counselors and psychiatrists across India are here to help students anytime.</p>
+      <a href="#contact" class="btn btn-emergency">Get Support</a>
+    </div>
+  </section>
+
+  <section class="emergency-section">
+    <div class="container">
+      <h2 class="section-title">Our Emergency Services</h2>
+      <div class="services">
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-book"></i></div>
+          <h3>Exam Stress Helpline</h3>
+          <p>Dedicated support for students struggling with exam pressure, academic workload, and burnout.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-user-friends"></i></div>
+          <h3>Peer & Bullying Support</h3>
+          <p>Immediate help for students facing bullying, peer pressure, or social isolation.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-heart"></i></div>
+          <h3>Anxiety & Depression Care</h3>
+          <p>Professional care for anxiety attacks, depression, and suicidal thoughts.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="locations" id="contact">
+  <div class="container">
+    <h2 class="section-title">Emergency Contacts in India</h2>
+    
+    <!-- Hardcoded important helplines -->
+    <div class="location-cards">
+      <div class="location-card">
+        <h3><i class="fas fa-phone"></i> KIRAN Helpline</h3>
+        <p>National 24/7 Mental Health Helpline (Govt. of India)</p>
+        <p><strong>Phone:</strong> 1800-599-0019</p>
+      </div>
+      <div class="location-card">
+        <h3><i class="fas fa-phone"></i> Snehi (Delhi)</h3>
+        <p>Suicide prevention & counseling for youth</p>
+        <p><strong>Phone:</strong> +91-9582208181</p>
+      </div>
+      <div class="location-card">
+        <h3><i class="fas fa-phone"></i> AASRA (Mumbai)</h3>
+        <p>24/7 Support for depression & suicidal thoughts</p>
+        <p><strong>Phone:</strong> +91-9820466726</p>
+      </div>
+    </div>
+
+    <!-- Dynamic contacts from CSV -->
+    <div class="location-cards" id="contact-list">
+      <!-- Contacts loaded by JS -->
+    </div>
+  </div>
+</section>
+
+
+  <footer>
+    <div class="container footer-content">
+      <div class="footer-section">
+        <h3>MindEase India</h3>
+        <p>Trusted support for students facing stress, anxiety, and depression. You're not alone.</p>
+      </div>
+      <div class="footer-section">
+        <h3>Contact Us</h3>
+        <p><i class="fas fa-phone"></i> Helpline: 1800-599-0019</p>
+        <p><i class="fas fa-envelope"></i> mideaseindia@gmail.com</p>
+      </div>
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <p><a href="#" style="color: white;">Student Helpline</a></p>
+        <p><a href="#" style="color: white;">Counselor Network</a></p>
+        <p><a href="#" style="color: white;">Mental Health Resources</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; MindEase India. All rights reserved.</p>
+    </div>
+  </footer>
+  <script>
+  async function loadContacts() {
+    try {
+      const res = await fetch("/api/emergency/contacts");
+      const contacts = await res.json();
+
+      const container = document.getElementById("contact-list");
+      container.innerHTML = "";
+
+      contacts.slice(0, 6).forEach(c => {  // show first 6 for clean UI
+        container.innerHTML += `
+          <div class="location-card">
+            <div class="location-content">
+              <h3><i class="fas fa-map-marker-alt"></i> ${c.name}</h3>
+              <p>${c.location}</p>
+              <p><strong>Phone:</strong> ${c.phone}</p>
+              <p><a href="${c.link}" target="_blank">More Info</a></p>
+            </div>
+          </div>
+        `;
+      });
+    } catch (err) {
+      console.error("Error loading contacts:", err);
+    }
+  }
+
+  loadContacts();
+</script>
+  <footer>
+    <!-- your footer content -->
+  </footer>
+
+  <script>
+    async function loadContacts() {
+      try {
+        const res = await fetch("/api/emergency/contacts");
+        const contacts = await res.json();
+
+        const container = document.getElementById("contact-list");
+        container.innerHTML = "";
+
+        contacts.slice(0, 6).forEach(c => {
+          if (c.name && c.name !== "Unknown") {
+            container.innerHTML += `
+              <div class="location-card">
+                <div class="location-content">
+                  <h3><i class="fas fa-map-marker-alt"></i> ${c.name}</h3>
+                  <p>${c.location || "N/A"}</p>
+                  <p><strong>Phone:</strong> ${c.phone || "N/A"}</p>
+                  ${c.link && c.link !== "#" ? `<p><a href="${c.link}" target="_blank">More Info</a></p>` : ""}
+                </div>
+              </div>
+            `;
+          }
+        });
+      } catch (err) {
+        console.error("Error loading contacts:", err);
+      }
+    }
+
+    // Call it after page loads
+    loadContacts();
+  </script>
+</body>
+</html>
+
+</body>
+</html>

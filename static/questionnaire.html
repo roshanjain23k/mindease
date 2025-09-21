@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Questionnaire - MedCare</title>
+  <link rel="stylesheet" href="/chatbot/style.css">
+  <style>
+    .q-section{ margin-bottom:18px; }
+    .q-grid{ display:grid; grid-template-columns:1fr; gap:8px; }
+    .q-item{ background:#fff; padding:12px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.04);}
+    .scale { display:flex; gap:8px; margin-top:8px; }
+    .scale label{ flex:1; text-align:center; padding:8px; border-radius:6px; background:#f7f9fc; cursor:pointer;}
+    .scale input{ display:none; }
+    .scale input:checked + label{ background: linear-gradient(90deg, rgba(58,96,156,0.12), rgba(58,96,156,0.08)); border:1px solid #3a609c;}
+    .actions{ margin-top:12px; display:flex; gap:8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header><div class="logo"><h1>MedCare — Questionnaire</h1></div></header>
+    <div class="card">
+      <h2>Student Daily Check — Quick Questions</h2>
+      <p>Please answer honestly. 1 = Never, 5 = Always.</p>
+
+      <form id="questionnaireForm">
+        <div class="q-section">
+          <h3>Stress</h3>
+          <div class="q-grid">
+
+            <div class="q-item">
+              <div>1. I feel overloaded with schoolwork or assignments.</div>
+              <div class="scale"><input type="radio" name="stress_q1" value="1" id="s1_1" checked><label for="s1_1">1</label><input type="radio" name="stress_q1" value="2" id="s1_2" ><label for="s1_2">2</label><input type="radio" name="stress_q1" value="3" id="s1_3" ><label for="s1_3">3</label><input type="radio" name="stress_q1" value="4" id="s1_4" ><label for="s1_4">4</label><input type="radio" name="stress_q1" value="5" id="s1_5" ><label for="s1_5">5</label></div></div>
+            <div class="q-item">
+              <div>2. I find it hard to balance studies and personal life.</div>
+              <div class="scale"><input type="radio" name="stress_q2" value="1" id="s2_1" checked><label for="s2_1">1</label><input type="radio" name="stress_q2" value="2" id="s2_2" ><label for="s2_2">2</label><input type="radio" name="stress_q2" value="3" id="s2_3" ><label for="s2_3">3</label><input type="radio" name="stress_q2" value="4" id="s2_4" ><label for="s2_4">4</label><input type="radio" name="stress_q2" value="5" id="s2_5" ><label for="s2_5">5</label></div></div>
+            <div class="q-item">
+              <div>3. I feel pressured by teachers/parents to perform well.</div>
+              <div class="scale"><input type="radio" name="stress_q3" value="1" id="s3_1" checked><label for="s3_1">1</label><input type="radio" name="stress_q3" value="2" id="s3_2" ><label for="s3_2">2</label><input type="radio" name="stress_q3" value="3" id="s3_3" ><label for="s3_3">3</label><input type="radio" name="stress_q3" value="4" id="s3_4" ><label for="s3_4">4</label><input type="radio" name="stress_q3" value="5" id="s3_5" ><label for="s3_5">5</label></div></div>
+            <div class="q-item">
+              <div>4. I often sacrifice sleep to complete academic work.</div>
+              <div class="scale"><input type="radio" name="stress_q4" value="1" id="s4_1" checked><label for="s4_1">1</label><input type="radio" name="stress_q4" value="2" id="s4_2" ><label for="s4_2">2</label><input type="radio" name="stress_q4" value="3" id="s4_3" ><label for="s4_3">3</label><input type="radio" name="stress_q4" value="4" id="s4_4" ><label for="s4_4">4</label><input type="radio" name="stress_q4" value="5" id="s4_5" ><label for="s4_5">5</label></div></div>
+          </div>
+        </div>
+        <div class="q-section">
+          <h3>Anxiety</h3>
+          <div class="q-grid">
+
+            <div class="q-item">
+              <div>1. I feel nervous before exams or presentations.</div>
+              <div class="scale"><input type="radio" name="anx_q1" value="1" id="a1_1" checked><label for="a1_1">1</label><input type="radio" name="anx_q1" value="2" id="a1_2" ><label for="a1_2">2</label><input type="radio" name="anx_q1" value="3" id="a1_3" ><label for="a1_3">3</label><input type="radio" name="anx_q1" value="4" id="a1_4" ><label for="a1_4">4</label><input type="radio" name="anx_q1" value="5" id="a1_5" ><label for="a1_5">5</label></div></div>
+            <div class="q-item">
+              <div>2. I worry about what others think of me at school/college.</div>
+              <div class="scale"><input type="radio" name="anx_q2" value="1" id="a2_1" checked><label for="a2_1">1</label><input type="radio" name="anx_q2" value="2" id="a2_2" ><label for="a2_2">2</label><input type="radio" name="anx_q2" value="3" id="a2_3" ><label for="a2_3">3</label><input type="radio" name="anx_q2" value="4" id="a2_4" ><label for="a2_4">4</label><input type="radio" name="anx_q2" value="5" id="a2_5" ><label for="a2_5">5</label></div></div>
+            <div class="q-item">
+              <div>3. I feel restless when I have to meet deadlines.</div>
+              <div class="scale"><input type="radio" name="anx_q3" value="1" id="a3_1" checked><label for="a3_1">1</label><input type="radio" name="anx_q3" value="2" id="a3_2" ><label for="a3_2">2</label><input type="radio" name="anx_q3" value="3" id="a3_3" ><label for="a3_3">3</label><input type="radio" name="anx_q3" value="4" id="a3_4" ><label for="a3_4">4</label><input type="radio" name="anx_q3" value="5" id="a3_5" ><label for="a3_5">5</label></div></div>
+            <div class="q-item">
+              <div>4. I avoid certain activities because I fear being judged.</div>
+              <div class="scale"><input type="radio" name="anx_q4" value="1" id="a4_1" checked><label for="a4_1">1</label><input type="radio" name="anx_q4" value="2" id="a4_2" ><label for="a4_2">2</label><input type="radio" name="anx_q4" value="3" id="a4_3" ><label for="a4_3">3</label><input type="radio" name="anx_q4" value="4" id="a4_4" ><label for="a4_4">4</label><input type="radio" name="anx_q4" value="5" id="a4_5" ><label for="a4_5">5</label></div></div>
+          </div>
+        </div>
+        <div class="q-section">
+          <h3>Depression</h3>
+          <div class="q-grid">
+
+            <div class="q-item">
+              <div>1. I feel less motivated to attend school/college or classes.</div>
+              <div class="scale"><input type="radio" name="dep_q1" value="1" id="d1_1" checked><label for="d1_1">1</label><input type="radio" name="dep_q1" value="2" id="d1_2" ><label for="d1_2">2</label><input type="radio" name="dep_q1" value="3" id="d1_3" ><label for="d1_3">3</label><input type="radio" name="dep_q1" value="4" id="d1_4" ><label for="d1_4">4</label><input type="radio" name="dep_q1" value="5" id="d1_5" ><label for="d1_5">5</label></div></div>
+            <div class="q-item">
+              <div>2. I have little interest in hanging out with friends.</div>
+              <div class="scale"><input type="radio" name="dep_q2" value="1" id="d2_1" checked><label for="d2_1">1</label><input type="radio" name="dep_q2" value="2" id="d2_2" ><label for="d2_2">2</label><input type="radio" name="dep_q2" value="3" id="d2_3" ><label for="d2_3">3</label><input type="radio" name="dep_q2" value="4" id="d2_4" ><label for="d2_4">4</label><input type="radio" name="dep_q2" value="5" id="d2_5" ><label for="d2_5">5</label></div></div>
+            <div class="q-item">
+              <div>3. I feel sad or down most of the time.</div>
+              <div class="scale"><input type="radio" name="dep_q3" value="1" id="d3_1" checked><label for="d3_1">1</label><input type="radio" name="dep_q3" value="2" id="d3_2" ><label for="d3_2">2</label><input type="radio" name="dep_q3" value="3" id="d3_3" ><label for="d3_3">3</label><input type="radio" name="dep_q3" value="4" id="d3_4" ><label for="d3_4">4</label><input type="radio" name="dep_q3" value="5" id="d3_5" ><label for="d3_5">5</label></div></div>
+            <div class="q-item">
+              <div>4. I feel hopeless about my academic future.</div>
+              <div class="scale"><input type="radio" name="dep_q4" value="1" id="d4_1" checked><label for="d4_1">1</label><input type="radio" name="dep_q4" value="2" id="d4_2" ><label for="d4_2">2</label><input type="radio" name="dep_q4" value="3" id="d4_3" ><label for="d4_3">3</label><input type="radio" name="dep_q4" value="4" id="d4_4" ><label for="d4_4">4</label><input type="radio" name="dep_q4" value="5" id="d4_5" ><label for="d4_5">5</label></div></div>
+          </div>
+        </div>
+        <div class="q-section">
+          <h3>Social & Family</h3>
+          <div class="q-grid">
+
+            <div class="q-item">
+              <div>1. I have a good relationship with my parents/guardians.</div>
+              <div class="scale"><input type="radio" name="soc_q1" value="1" id="soc1_1" checked><label for="soc1_1">1</label><input type="radio" name="soc_q1" value="2" id="soc1_2" ><label for="soc1_2">2</label><input type="radio" name="soc_q1" value="3" id="soc1_3" ><label for="soc1_3">3</label><input type="radio" name="soc_q1" value="4" id="soc1_4" ><label for="soc1_4">4</label><input type="radio" name="soc_q1" value="5" id="soc1_5" ><label for="soc1_5">5</label></div></div>
+            <div class="q-item">
+              <div>2. I can openly share my problems with my close friends.</div>
+              <div class="scale"><input type="radio" name="soc_q2" value="1" id="soc2_1" checked><label for="soc2_1">1</label><input type="radio" name="soc_q2" value="2" id="soc2_2" ><label for="soc2_2">2</label><input type="radio" name="soc_q2" value="3" id="soc2_3" ><label for="soc2_3">3</label><input type="radio" name="soc_q2" value="4" id="soc2_4" ><label for="soc2_4">4</label><input type="radio" name="soc_q2" value="5" id="soc2_5" ><label for="soc2_5">5</label></div></div>
+            <div class="q-item">
+              <div>3. I feel supported by my teachers and classmates.</div>
+              <div class="scale"><input type="radio" name="soc_q3" value="1" id="soc3_1" checked><label for="soc3_1">1</label><input type="radio" name="soc_q3" value="2" id="soc3_2" ><label for="soc3_2">2</label><input type="radio" name="soc_q3" value="3" id="soc3_3" ><label for="soc3_3">3</label><input type="radio" name="soc_q3" value="4" id="soc3_4" ><label for="soc3_4">4</label><input type="radio" name="soc_q3" value="5" id="soc3_5" ><label for="soc3_5">5</label></div></div>
+            <div class="q-item">
+              <div>4. I regularly participate in group activities or events.</div>
+              <div class="scale"><input type="radio" name="soc_q4" value="1" id="soc4_1" checked><label for="soc4_1">1</label><input type="radio" name="soc_q4" value="2" id="soc4_2" ><label for="soc4_2">2</label><input type="radio" name="soc_q4" value="3" id="soc4_3" ><label for="soc4_3">3</label><input type="radio" name="soc_q4" value="4" id="soc4_4" ><label for="soc4_4">4</label><input type="radio" name="soc_q4" value="5" id="soc4_5" ><label for="soc4_5">5</label></div></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" id="submitQ" class="btn">Submit</button>
+          <a href="dashboard.html" class="btn" style="background:#999">Back</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="/chatbot/script.js"></script>
+  <script src="/questionnaire.js"></script>
+</body>
+</html>

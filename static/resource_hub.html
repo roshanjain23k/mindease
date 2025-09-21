@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mental Health Resource Hub</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .resource-container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .filter {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .card h3 {
+      margin: 0;
+    }
+    .card iframe, .card audio {
+      width: 100%;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .download-link {
+      display: inline-block;
+      margin-top: 10px;
+      color: #007bff;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="resource-container">
+    <h2>🧘 Mental Health Resource Hub</h2>
+
+    <div class="filter">
+      <label for="language">Choose Language:</label>
+      <select id="language" onchange="filterResources()">
+        <option value="All">All</option>
+        <option value="Hindi">Hindi</option>
+        <option value="English">English</option>
+        <option value="Universal">Universal</option>
+      </select>
+    </div>
+
+    <!-- Resource Cards -->
+    <div class="card" data-lang="Hindi">
+      <h3>Stress Management Guide (Hindi)</h3>
+      <p>Practical PDF guide in Hindi for reducing stress.</p>
+      <a class="download-link" href="resources/stress_guide_hindi.pdf" target="_blank">📄 Download PDF</a>
+    </div>
+
+    <div class="card" data-lang="English">
+      <h3>Guided Meditation (English)</h3>
+      <p>10-minute meditation audio in English.</p>
+      <audio controls>
+        <source src="resources/meditation.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+
+    <div class="card" data-lang="English">
+      <h3>Stress Tips (English)</h3>
+      <p>Quick stress relief techniques in English.</p>
+      <a class="download-link" href="resources/stress_tips_english.pdf" target="_blank">📄 Download PDF</a>
+    </div>
+
+    <div class="card" data-lang="Universal">
+      <h3>Relaxing Music (Universal)</h3>
+      <p>Calming instrumental music for relaxation.</p>
+      <audio controls>
+        <source src="resources/calm_music.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+
+    <div class="card" data-lang="English">
+      <h3>Understanding Anxiety (Video)</h3>
+      <p>Educational video explaining anxiety and coping strategies.</p>
+      <iframe height="250" src="https://www.youtube.com/embed/2ZKN5bFsY3M" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <script>
+    function filterResources() {
+      const selected = document.getElementById("language").value;
+      const cards = document.querySelectorAll(".card");
+      cards.forEach(card => {
+        if (selected === "All" || card.getAttribute("data-lang") === selected) {
+          card.style.display = "block";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    }
+  </script>
+</body>
+</html>

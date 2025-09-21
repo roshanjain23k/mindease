@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Signup</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f9ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .signup-container {
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,80,0.15);
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    .signup-container h1 {
+      margin-bottom: 25px;
+      color: #003366;
+      font-size: 1.8rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-group label {
+      font-weight: 600;
+      color: #004085;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1.8px solid #a3bffa;
+      font-size: 1rem;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #003366;
+    }
+
+    .btn-signup {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      background: #004085;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(0,0,80,0.25);
+      margin-top: 10px;
+    }
+    .btn-signup:hover {
+      background: #002952;
+    }
+
+    .error-msg {
+      color: #dc3545;
+      font-size: 0.95rem;
+      margin-top: 12px;
+      display: none;
+    }
+    .success-msg {
+      color: #28a745;
+      font-size: 0.95rem;
+      margin-top: 12px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="signup-container">
+    <h1>Admin Signup</h1>
+    <form id="adminSignupForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+      <button type="submit" class="btn-signup">Create Admin</button>
+      <div class="error-msg" id="error-msg">Something went wrong. Try again.</div>
+      <div class="success-msg" id="success-msg">Admin created successfully!</div>
+    </form>
+    <p style="margin-top:15px;">
+      Already an admin? <a href="admin_login.html" style="color:#004085; font-weight:600;">Login</a>
+    </p>
+  </div>
+
+  <script>
+    const form = document.getElementById("adminSignupForm");
+    const errorMsg = document.getElementById("error-msg");
+    const successMsg = document.getElementById("success-msg");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorMsg.style.display = "none";
+      successMsg.style.display = "none";
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      try {
+        const res = await fetch("/api/admin/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          successMsg.style.display = "block";
+          form.reset();
+        } else {
+          errorMsg.textContent = data.message || "Error: Could not create admin.";
+          errorMsg.style.display = "block";
+        }
+      } catch (err) {
+        console.error(err);
+        errorMsg.textContent = "Server error. Please try again.";
+        errorMsg.style.display = "block";
+      }
+    });
+  </script>
+
+</body>
+</html>

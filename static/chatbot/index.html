@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MedCare Chat</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body{ margin:0; font-family:'Segoe UI',Tahoma,Verdana; background:linear-gradient(135deg,#eaf2fb,#f8f6fb); color:#222; display:flex; justify-content:center; padding:24px; }
+    .container{ max-width:900px; width:100%; background:white; border-radius:14px; padding:20px; box-shadow:0 10px 30px rgba(18,34,63,0.06); }
+    header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px }
+    header h1{ color:#3a609c; margin:0 }
+    .chat-window{ height:380px; overflow:auto; border-radius:10px; border:1px solid #eee; padding:12px; background:#fafafa; }
+    .msg{ display:inline-block; padding:10px 12px; border-radius:10px; margin:8px 0; max-width:78%; }
+    .user{ background:#3a609c; color:white; margin-left:auto; }
+    .bot{ background:#eef4ff; color:#333; margin-right:auto; }
+    .chat-input{ display:flex; gap:8px; margin-top:12px; }
+    .chat-input input{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid #ddd; }
+    .chat-input button{ padding:10px 12px; border-radius:10px; border:none; background:#3a609c; color:white; cursor:pointer }
+    #suggestion-box{ margin-top:18px; padding:14px; border-left:5px solid #3a609c; background:#f4f7ff; border-radius:8px; display:none; }
+    #suggestion-box h3{ margin:0 0 6px; color:#3a609c; font-size:18px; }
+    canvas{ margin-top:20px; display:none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>MedCare — Chat</h1>
+      <button onclick="window.location.href='/dashboard.html'" style="padding:8px 12px;border-radius:8px;border:none;background:#6b8db3;color:white;cursor:pointer">Back</button>
+    </header>
+
+    <div id="chatWindow" class="chat-window">
+      <div class="msg bot">👋 Hello — I'm here to listen. Share what's on your mind.</div>
+    </div>
+
+    <div class="chat-input">
+      <input id="chatInput" placeholder="Type message..." />
+      <button id="sendBtn">Send</button>
+    </div>
+
+    <!-- Suggestion box -->
+    <div id="suggestion-box">
+      <h3>💡 Suggested Action</h3>
+      <p id="suggestion-text"></p>
+    </div>
+
+    <!-- Chart -->
+    <canvas id="moodChart"></canvas>
+  </div>
+
+  <script>
+    const chatWindow = document.getElementById('chatWindow');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const suggestionBox = document.getElementById('suggestion-box');
+    const suggestionText = document.getElementById('suggestion-text');
+
+    // Chart.js setup
+    let moodLabels = [];
+    let moodData = [];
+    let chart;
+
+    function renderChart(){
+      const ctx = document.getElementById("moodChart").getContext("2d");
+      document.getElementById("moodChart").style.display = "block";
+
+      if(chart) chart.destroy(); // refresh
+      chart = new Chart(ctx,{
+        type:"line",
+        data:{
+          labels:moodLabels,
+          datasets:[{
+            label:"Stress Score",
+            data:moodData,
+            borderColor:"#3a609c",
+            backgroundColor:"rgba(58,96,156,0.2)",
+            fill:true,
+            tension:0.3
+          }]
+        },
+        options:{ responsive:true, scales:{ y:{beginAtZero:true, max:10} } }
+      });
+    }
+
+    function appendMsg(text, who){
+      const d=document.createElement('div');
+      d.className='msg '+(who==='user'?'user':'bot');
+      d.textContent=text;
+      chatWindow.appendChild(d);
+      chatWindow.scrollTop=chatWindow.scrollHeight;
+    }
+
+    async function sendMessage(){
+      const text=chatInput.value.trim();
+      if(!text) return;
+      appendMsg(text,'user');
+      chatInput.value='';
+
+      try{
+        const res=await fetch('/api/chat',{ 
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({ text })
+        });
+        const data=await res.json();
+
+        appendMsg(data.reply || "Thanks for sharing.","bot");
+
+        if(data.suggestion){
+          suggestionBox.style.display="block";
+          suggestionText.textContent=data.suggestion;
+        }
+
+        if(data.stress_score!==undefined){
+          const now=new Date().toLocaleTimeString();
+          moodLabels.push(now);
+          moodData.push(data.stress_score);
+          renderChart();
+        }
+
+      }catch(e){
+        appendMsg("⚠️ Couldn't reach server. Try again later.","bot");
+      }
+    }
+
+    sendBtn.addEventListener('click',sendMessage);
+    chatInput.addEventListener('keydown',e=>{ if(e.key==='Enter') sendMessage(); });
+  </script>
+</body>
+</html>

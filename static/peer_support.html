@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peer Support</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background:#f5f9ff; margin:0; color:#333; }
+    .sidebar{ position:fixed;top:0;left:0;width:240px;height:100%;background:#003366;color:#fff;padding-top:50px;}
+    .sidebar a{display:block;padding:14px 20px;color:#fff;text-decoration:none;}
+    .sidebar a:hover{background:#004080;}
+    .sidebar a.active{background:#00509e;}
+    main{ margin-left:240px; padding:20px; }
+    .container{ max-width:900px; margin:auto; background:#fff; border-radius:12px; padding:20px; box-shadow:0 4px 15px rgba(0,0,0,0.1);}
+    h1{ color:#003366; text-align:center; }
+    .motivation{ background:#e3f2ff; padding:12px; border-left:6px solid #004085; margin-bottom:20px; font-style:italic;}
+    .chat-box{ max-height:400px; overflow-y:auto; margin-bottom:15px; }
+    .message{ background:#f1f5ff; margin:10px 0; padding:12px; border-radius:10px; position:relative;}
+    .message strong{ color:#003366; }
+    .reactions span{ margin-right:8px; cursor:pointer; }
+    .reply{ margin-left:30px; background:#fafafa; border-left:3px solid #ccc; padding:10px; border-radius:8px;}
+    .input-row{ display:flex; gap:10px; margin-top:15px; }
+    .input-row input{ flex:1; padding:10px; border-radius:8px; border:1px solid #ccc; }
+    .btn{ background:#004085; color:#fff; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; }
+    .btn:hover{ background:#002952; }
+    .mood-box{ margin-top:20px; text-align:center; }
+    .mood-box span{ font-size:24px; margin:0 8px; cursor:pointer; }
+    .badge{ background:#ffeb3b; padding:5px 10px; border-radius:6px; font-size:12px; margin-left:10px;}
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <h2 style="text-align:center;">Menu</h2>
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="questionnaire.html">📝 Questionnaire</a>
+    <a href="games.html">🎮 Games</a>
+    <a href="wellness.html">💡 Wellness</a>
+    <li><a href="/resource-hub">📚 Resource Hub</a></li>
+
+  </nav>
+
+  <main>
+    <div class="container">
+      <h1>🌱 Peer Support Forum</h1>
+      <p class="motivation" id="quote">💡 "Every day may not be good, but there's something good in every day."</p>
+
+      <p><strong>Peers Online:</strong> <span id="online-count">5</span></p>
+
+      <div class="chat-box" id="chat-box"></div>
+
+      <div class="input-row">
+        <input type="text" id="messageInput" placeholder="Share your thoughts..." />
+        <button class="btn" onclick="sendMessage()">Send</button>
+      </div>
+
+      <div class="mood-box">
+        <p>How are you feeling today?</p>
+        <span onclick="sendMood('😊')">😊</span>
+        <span onclick="sendMood('😟')">😟</span>
+        <span onclick="sendMood('😡')">😡</span>
+        <span onclick="sendMood('😢')">😢</span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const chatBox = document.getElementById("chat-box");
+
+    async function loadMessages(){
+      const res = await fetch("/api/peer/messages");
+      const data = await res.json();
+      chatBox.innerHTML = "";
+      data.forEach(msg=>{
+        let repliesHTML = "";
+        if(msg.replies){
+          msg.replies.forEach(r=>{
+            repliesHTML += `<div class="reply"><strong>${r.user}</strong>: ${r.text}</div>`;
+          });
+        }
+        chatBox.innerHTML += `
+          <div class="message">
+            <strong>${msg.user}</strong> ${msg.badge?`<span class="badge">${msg.badge}</span>`:""}:
+            ${msg.text}
+            <div class="reactions">
+              <span onclick="react(${msg.id},'👍')">👍 ${msg.reactions['👍']||0}</span>
+              <span onclick="react(${msg.id},'❤️')">❤️ ${msg.reactions['❤️']||0}</span>
+              <span onclick="react(${msg.id},'😢')">😢 ${msg.reactions['😢']||0}</span>
+            </div>
+            ${repliesHTML}
+            <input type="text" placeholder="Reply..." onkeydown="if(event.key==='Enter'){sendReply(${msg.id},this.value);this.value=''}" />
+          </div>`;
+      });
+    }
+
+    async function sendMessage(){
+      const text = document.getElementById("messageInput").value;
+      if(!text) return;
+      await fetch("/api/peer/message",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});
+      document.getElementById("messageInput").value="";
+      loadMessages();
+    }
+
+    async function sendReply(id,text){
+      await fetch("/api/peer/reply",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message_id:id,text})});
+      loadMessages();
+    }
+
+    async function react(id,emoji){
+      await fetch("/api/peer/react",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message_id:id,emoji})});
+      loadMessages();
+    }
+
+    async function sendMood(mood){
+      await fetch("/api/peer/mood",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mood})});
+      alert("Your mood has been recorded: "+mood);
+    }
+
+    setInterval(loadMessages,5000);
+    loadMessages();
+  </script>
+</body>
+</html>
