@@ -7,6 +7,12 @@ import base64, re, cv2
 import numpy as np
 from deepface import DeepFace
 import csv
+from dotenv import load_dotenv
+
+# Load variables from .env when running locally
+load_dotenv()
+
+HF_API_KEY = os.getenv("HF_API_KEY")
 
 # Sample resource data (later you can load from DB if needed)
 RESOURCES = [
