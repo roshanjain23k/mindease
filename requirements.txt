@@ -10,3 +10,4 @@ pandas
 scikit-learn
 tensorflow
 python-dotenv
+tf-keras
